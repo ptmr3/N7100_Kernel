@@ -203,9 +203,8 @@ static long madvise_remove(struct vm_area_struct *vma,
 	if (vma->vm_flags & (VM_LOCKED|VM_NONLINEAR|VM_HUGETLB))
 		return -EINVAL;
 
-	f = vma->vm_file;
-
-	if (!f || !f->f_mapping || !f->f_mapping->host) {
+    if (!vma->vm_file || !vma->vm_file->f_mapping
+		|| !vma->vm_file->f_mapping->host) {
 			return -EINVAL;
 	}
 
@@ -225,7 +224,6 @@ static long madvise_remove(struct vm_area_struct *vma,
 	 * hence the vma's reference to the file) can go away as soon as
 	 * we drop mmap_sem.
 	 */
-	get_file(f);
 	up_read(&current->mm->mmap_sem);
 	error = vmtruncate_range(mapping->host, offset, endoff);
 	down_read(&current->mm->mmap_sem);
